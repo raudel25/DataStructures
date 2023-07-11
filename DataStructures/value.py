@@ -1,7 +1,7 @@
 from abc import ABC, abstractclassmethod
 
 
-class Element(ABC):
+class Value(ABC):
     def __add__(self, other):
         self.add(other)
 

@@ -13,6 +13,9 @@ class DisjoinSet:
 
         return set_of
 
+    def size(self, index) -> int:
+        return self._size[index]
+
     def same_set(self, index1: int, index2: int):
         return self.set_of(index1) == self.set_of(index2)
 

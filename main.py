@@ -1,5 +1,6 @@
 from DataStructures.disjoin_set import DisjoinSet
+from DataStructures.sorted_algorithms import selection_sort,insertion_sort
 
-d= DisjoinSet(4)
-d.join(0,1)
-print(d.set_of(1))
+l = [3, 2, 5, -1, 0]
+insertion_sort(l, False)
+print(l)
