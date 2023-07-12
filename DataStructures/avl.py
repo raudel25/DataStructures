@@ -215,3 +215,29 @@ class Avl:
         sr: int = 0 if node.right is None else node.right.size
 
         node.size = sl + sr + 1
+
+
+class Set:
+    def __init__(self, l: Iterable[int | float | Value] = []):
+        self.__avl = Avl()
+
+        for i in l:
+            self.insert(i)
+
+    def __iter__(self) -> Iterable[int | float | Value]:
+        return map(lambda node: node.key, self.__avl.in_orden())
+
+    def insert(self, k: int | float | Value):
+        self.__avl.insert(k)
+
+    def rank(self, k: int | float | Value) -> int:
+        return self.__avl.rank(k)
+
+    def select(self, index: int) -> int | float | Value:
+        return self.__avl.select(index).key
+
+    def find(self, k: int | float | Value):
+        return self.__avl.find(k) is not None
+
+    def __getitem__(self, index: int) -> int | float | Value:
+        return self.select(index)
