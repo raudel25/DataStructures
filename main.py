@@ -6,12 +6,14 @@ from DataStructures.sorted_algorithms import selection_sort, insertion_sort, mer
 # quick_sort(l, False)
 # print(l)
 
-a = Set([1,2])
+a = Set()
 
 a.insert(2)
 a.insert(3)
+a.insert(6)
+a.insert(7)
+a.insert(5)
+a.remove(3)
 
 for i in a:
     print(i)
-
-print(a.find(20))

@@ -42,11 +42,15 @@ class Avl:
             return
 
         Avl.__insert(self.__root, k, v)
+        self.__valance__root()
 
-        if Avl.__f_valance(self.__root) == 2:
-            self.__root = Avl.__valance_r(self.__root)
-        if Avl.__f_valance(self.__root) == -2:
-            self.__root = Avl.__valance_l(self.__root)
+    def remove(self, k: int | float | Value):
+        if self.__root.key == k and self.__root.size == 1:
+            self.__root = None
+            return
+
+        Avl.__remove(self.__root, k)
+        self.__valance__root()
 
     def __insert(node: Node, k: int | float | Value, v=None):
         if node.key == k:
@@ -62,6 +66,42 @@ class Avl:
                 node.right = Node(k, v)
             else:
                 Avl.__insert(node.right, k, v)
+
+        Avl.__act_h(node)
+        Avl.__act_size(node)
+
+        Avl.__valance(node)
+
+    def __remove(node: Node | None, k: int | float | Value):
+        if node is None:
+            return
+
+        if node.key == k:
+            if node.left is None and node.right is None:
+                return
+
+            hl = 0 if node.left is None else node.left.h
+            hr = 0 if node.right is None else node.right.h
+
+            if hl < hr:
+                node.key, node.value = node.right.key, node.right.value
+                node.right.key = k
+                Avl.__remove(node.right, k)
+            else:
+                node.key, node.value = node.left.key, node.left.value
+                node.left.key = k
+                Avl.__remove(node.left, k)
+        else:
+            if node.key < k:
+                Avl.__remove(node.left, k)
+            else:
+                Avl.__remove(node.right, k)
+
+        if node.left is not None and node.left.key == k:
+            node.left = None
+
+        if node.right is not None and node.right.key == k:
+            node.right = None
 
         Avl.__act_h(node)
         Avl.__act_size(node)
@@ -153,6 +193,12 @@ class Avl:
 
         return right - left
 
+    def __valance__root(self):
+        if Avl.__f_valance(self.__root) == 2:
+            self.__root = Avl.__valance_r(self.__root)
+        if Avl.__f_valance(self.__root) == -2:
+            self.__root = Avl.__valance_l(self.__root)
+
     def __valance(node: Node):
         if Avl.__f_valance(node.left) == 2:
             node.left = Avl.__valance_r(node.left)
@@ -229,6 +275,9 @@ class Set:
 
     def insert(self, k: int | float | Value):
         self.__avl.insert(k)
+
+    def remove(self, k: int | float | Value):
+        self.__avl.remove(k)
 
     def rank(self, k: int | float | Value) -> int:
         return self.__avl.rank(k)
