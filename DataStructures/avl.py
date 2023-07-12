@@ -290,3 +290,49 @@ class Set:
 
     def __getitem__(self, index: int) -> int | float | Value:
         return self.select(index)
+
+
+class Dictionary:
+    def __init__(self, l: Iterable[Tuple[int | float | Value, any]] = []):
+        self.__avl = Avl()
+
+        for i in l:
+            self.insert(i)
+
+    def __iter__(self) -> Iterable[int | float | Value]:
+        return map(lambda node: (node.key, node.value), self.__avl.in_orden())
+
+    def insert(self, k: int | float | Value, v: any):
+        self.__avl.insert(k, v)
+
+    def remove(self, k: int | float | Value):
+        self.__avl.remove(k)
+
+    def rank(self, k: int | float | Value) -> int:
+        return self.__avl.rank(k)
+
+    def select(self, index: int) -> Tuple[int | float | Value, any]:
+        node = self.__avl.select(index)
+        return node.key, node.value
+
+    def find(self, k: int | float | Value):
+        return self.__avl.find(k) is not None
+
+    def get(self, k: int | float | Value) -> any:
+        node = self.__avl.find(k)
+
+        return Node if node is None else node.value
+
+    def set(self, k: int | float | Value, v: any) -> any:
+        node = self.__avl.find(k)
+
+        if node is not None:
+            node.value = v
+        else:
+            self.insert(k, v)
+
+    def __getitem__(self, k: int | float | Value) -> any:
+        return self.get(k)
+
+    def __setitem__(self, k: int | float | Value, v: any) -> any:
+        self.set(k, v)
