@@ -11,47 +11,134 @@ class Node:
         self.left: Node = None
         self.right: Node = None
 
+    def pre_orden(self) -> Iterable['Node']:
+        yield self
+
+        if self.left is not None:
+            for i in self.left.pre_orden():
+                yield i
+
+        for i in self.right.pre_orden():
+            yield i
+
+    def in_orden(self) -> Iterable['Node']:
+        if self.left is not None:
+            for i in self.left.in_orden():
+                yield i
+
+        yield self
+
+        if self.right is not None:
+            for i in self.right.in_orden():
+                yield i
+
+    def post_orden(self) -> Iterable['Node']:
+        if self.left is not None:
+            for i in self.left.post_orden():
+                yield i
+
+        if self.right is not None:
+            for i in self.right.post_orden():
+                yield i
+
+        yield self
+
+    def find(self, k: int | float | Value) -> 'Node':
+        if self.key == k:
+            return self
+
+        if k < self.key:
+            return None if self.left is None else self.left.find(k)
+
+        return None if self.right is None else self.right.find(k)
+
+    def rank(self, k: int | float | Value) -> int:
+        left = 0 if self.left is None else self.left.size
+
+        if k == self.key:
+            return left
+
+        if k < self.key:
+            return 0 if self.left is None else self.left.rank(k)
+
+        return left + 1 if self.right is None else left + 1 + self.right.rank(k)
+
+    def select(self, index: int) -> 'Node':
+        if index < 0 or index >= self.size:
+            return None
+
+        left = 0 if self.left is None else self.left.size
+
+        if index == left:
+            return self
+
+        if index < left:
+            return None if self.left is None else self.left.select(index)
+
+        return None if self.right is None else self.right.select(index - left - 1)
+
+    def act_h(self):
+        hl: int = 0 if self.left is None else self.left.h
+        hr: int = 0 if self.right is None else self.right.h
+
+        self.h = max(hl, hr) + 1
+
+    def act_size(self):
+        sl: int = 0 if self.left is None else self.left.size
+        sr: int = 0 if self.right is None else self.right.size
+
+        self.size = sl + sr + 1
+
 
 class Avl:
     def __init__(self):
-        self.__root: Node = None
+        self.root: Node = None
 
     def pre_orden(self) -> Iterable[Node]:
-        return Avl.__pre_orden(self.__root)
+        if self.root is None:
+            return []
+        return self.root.pre_orden()
 
     def in_orden(self) -> Iterable[Node]:
-        return Avl.__in_orden(self.__root)
+        if self.root is None:
+            return []
+        return self.root.in_orden()
 
     def post_orden(self) -> Iterable[Node]:
-        return Avl.__post_orden(self.__root)
+        if self.root is None:
+            return []
+        return self.root.post_orden()
 
     def find(self, k: int | float | Value) -> Node:
-        return Avl.__find(self.__root, k)
+        if self.root is None:
+            return None
+        return self.root.find(k)
 
     def rank(self, k: int | float | Value) -> int:
-        return Avl.__rank(self.__root, k)
+        return self.root.rank(k)
 
     def select(self, index: int) -> Node | None:
-        if self.__root is None:
+        if self.root is None:
             return None
-        return Avl.__select(self.__root, index)
+        return self.root.select(index)
 
     def insert(self, k: int | float | Value, v=None):
-        if self.__root is None:
-            self.__root = Node(k, v)
+        if self.root is None:
+            self.root = Node(k, v)
             return
 
-        Avl.__insert(self.__root, k, v)
+        Avl.__insert(self.root, k, v)
         self.__valance__root()
 
     def remove(self, k: int | float | Value):
-        if self.__root is not None and self.__root.key == k:
-            self.__root = Avl.__remove_node(self.__root)
+        if self.root is not None and self.root.key == k:
+            self.root = Avl.__remove_node(self.root)
         else:
-            Avl.__remove(self.__root, k)
+            Avl.__remove(self.root, k)
 
         self.__valance__root()
 
+    @staticmethod
     def __insert(node: Node, k: int | float | Value, v=None):
         if node.key == k:
             return
@@ -67,11 +154,12 @@ class Avl:
             else:
                 Avl.__insert(node.right, k, v)
 
-        Avl.__act_h(node)
-        Avl.__act_size(node)
+        node.act_h()
+        node.act_size()
 
         Avl.__valance(node)
 
+    @staticmethod
     def __remove(node: Node | None, k: int | float | Value):
         if node is None:
             return
@@ -92,11 +180,12 @@ class Avl:
             else:
                 Avl.__remove(node.right, k)
 
-        Avl.__act_h(node)
-        Avl.__act_size(node)
+        node.act_h()
+        node.act_size()
 
         Avl.__valance(node)
 
+    @staticmethod
     def __remove_node(node: Node) -> Node:
         if node.left is None and node.right is None:
             return None
@@ -118,82 +207,7 @@ class Avl:
 
         return node
 
-    def __pre_orden(node: Node | None) -> Iterable[Node]:
-        if node is None:
-            return []
-
-        yield node
-
-        for i in Avl.__pre_orden(node.left):
-            yield i
-
-        for i in Avl.__pre_orden(node.right):
-            yield i
-
-    def __in_orden(node: Node | None) -> Iterable[Node]:
-        if node is None:
-            return []
-
-        for i in Avl.__in_orden(node.left):
-            yield i
-
-        yield node
-
-        for i in Avl.__in_orden(node.right):
-            yield i
-
-    def __post_orden(node: Node | None) -> Iterable[Node]:
-        if node is None:
-            return []
-
-        for i in Avl.__post_orden(node.left):
-            yield i
-
-        for i in Avl.__post_orden(node.right):
-            yield i
-
-        yield node
-
-    def __find(node: Node | Node, k: int | float | Value) -> Node:
-        if node.key == k:
-            return node
-
-        if k < node.key:
-            return None if node.left is None else Avl.__find(node.left, k)
-
-        return None if node.right is None else Avl.__find(node.right, k)
-
-    def __rank(node: Node | None, k: int | float | Value) -> int:
-        if node is None:
-            return 0
-
-        left = 0 if node.left is None else node.left.size
-
-        if k == node.key:
-            return left
-
-        if k < node.key:
-            return Avl.__rank(node.left, k)
-
-        return left + 1 + Avl.__rank(node.right, k)
-
-    def __select(node: Node | None, index: int) -> Node | None:
-        if node is None:
-            return None
-
-        if index < 0 or index >= node.size:
-            return None
-
-        left = 0 if node.left is None else node.left.size
-
-        if index == left:
-            return node
-
-        if index < left:
-            return Avl.__select(node.left, index)
-
-        return Avl.__select(node.right, index - left - 1)
-
+    @staticmethod
     def __f_valance(node: Node | None) -> int:
         if node is None:
             return 0
@@ -204,11 +218,12 @@ class Avl:
         return right - left
 
     def __valance__root(self):
-        if Avl.__f_valance(self.__root) == 2:
-            self.__root = Avl.__valance_r(self.__root)
-        if Avl.__f_valance(self.__root) == -2:
-            self.__root = Avl.__valance_l(self.__root)
+        if Avl.__f_valance(self.root) == 2:
+            self.root = Avl.__valance_r(self.root)
+        if Avl.__f_valance(self.root) == -2:
+            self.root = Avl.__valance_l(self.root)
 
+    @staticmethod
     def __valance(node: Node):
         if Avl.__f_valance(node.left) == 2:
             node.left = Avl.__valance_r(node.left)
@@ -220,57 +235,49 @@ class Avl:
         if Avl.__f_valance(node.right) == -2:
             node.right = Avl.__valance_l(node.right)
 
+    @staticmethod
     def __valance_r(node: Node) -> Node:
         if Avl.__f_valance(node.right) == -1:
             node.right = Avl.__valance_l_s(node.right)
 
         return Avl.__valance_r_s(node)
 
+    @staticmethod
     def __valance_l(node: Node) -> Node:
         if Avl.__f_valance(node.left) == 1:
             node.left = Avl.__valance_r_s(node.left)
 
         return Avl.__valance_l_s(node)
 
+    @staticmethod
     def __valance_r_s(node: Node) -> Node:
         aux = node.right
 
         node.right = aux.left
         aux.left = node
 
-        Avl.__act_h(aux.left)
-        Avl.__act_h(aux)
+        aux.left.act_h()
+        aux.act_h()
 
-        Avl.__act_size(aux.left)
-        Avl.__act_size(aux)
+        aux.left.act_size()
+        aux.act_size()
 
         return aux
 
+    @staticmethod
     def __valance_l_s(node: Node) -> Node:
         aux = node.left
 
         node.left = aux.right
         aux.right = node
 
-        Avl.__act_h(aux.right)
-        Avl.__act_h(aux)
+        aux.right.act_h()
+        aux.act_h()
 
-        Avl.__act_size(aux.right)
-        Avl.__act_size(aux)
+        aux.right.act_size()
+        aux.act_size()
 
         return aux
-
-    def __act_h(node: Node):
-        hl: int = 0 if node.left is None else node.left.h
-        hr: int = 0 if node.right is None else node.right.h
-
-        node.h = max(hl, hr) + 1
-
-    def __act_size(node: Node):
-        sl: int = 0 if node.left is None else node.left.size
-        sr: int = 0 if node.right is None else node.right.size
-
-        node.size = sl + sr + 1
 
 
 class Set:
@@ -293,7 +300,12 @@ class Set:
         return self.__avl.rank(k)
 
     def select(self, index: int) -> int | float | Value:
-        return self.__avl.select(index).key
+        node = self.__avl.select(index)
+
+        if node is None:
+            raise IndexError
+
+        return node.key
 
     def find(self, k: int | float | Value):
         return self.__avl.find(k) is not None
@@ -323,6 +335,10 @@ class Dictionary:
 
     def select(self, index: int) -> Tuple[int | float | Value, any]:
         node = self.__avl.select(index)
+
+        if node is None:
+            raise IndexError
+
         return node.key, node.value
 
     def find(self, k: int | float | Value):
@@ -346,3 +362,88 @@ class Dictionary:
 
     def __setitem__(self, k: int | float | Value, v: any) -> any:
         self.set(k, v)
+
+
+class MultiSet(Avl):
+    def __init__(self, l: Iterable[int | float | Value] = []):
+        self.__avl = Avl()
+
+        for i in l:
+            self.insert(i)
+
+    def __iter__(self) -> Iterable[int | float | Value]:
+        for node in self.__avl.in_orden():
+            for i in range(node.value):
+                yield node.key
+
+    def insert(self, k: int | float | Value):
+        node = self.__avl.find(k)
+
+        if node is None:
+            self.__avl.insert(k, 1)
+        else:
+            node.value += 1
+            node.size += 1
+            self.__avl.update(k)
+
+    def remove(self, k: int | float | Value):
+        node = self.__avl.find(k)
+
+        if node is not None:
+            print(node.size)
+            node.value -= 1
+            node.size -= 1
+
+            if node.value == 0:
+                self.__avl.remove(k)
+
+            self.__avl.update(k)
+
+    def rank(self, k: int | float | Value) -> int:
+        return MultiSet.__rank(self.__avl, k)
+
+    def select(self, index: int) -> int | float | Value:
+        node = MultiSet.__select(self.__avl.root, index)
+
+        if node is None:
+            raise IndexError
+
+        return node.key
+
+    def find(self, k: int | float | Value):
+        return self.__avl.find(k) is not None
+
+    def __rank(node: Node | None, k: int | float | Value) -> int:
+        if node is None:
+            return 0
+
+        left = 0 if node.left is None else node.left.size
+
+        if k == node.key:
+            return left
+
+        if k < node.key:
+            return MultiSet._rank(node.left, k)
+
+        return left + node.value + MultiSet.__rank(node.right, k)
+
+    def __select(node: Node | None, index: int) -> Node | None:
+        if node is None:
+            return None
+
+        if index < 0 or index >= node.size:
+            print(node.size)
+            return None
+
+        left = 0 if node.left is None else node.left.size
+
+        if left <= index and index < left + node.value:
+            return node
+
+        if index < left:
+            return MultiSet.__select(node.left, index)
+
+        return MultiSet.__select(node.right, index - left - node.value)
+
+    def __getitem__(self, index: int) -> int | float | Value:
+        return self.select(index)

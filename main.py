@@ -12,18 +12,20 @@ a.insert(2)
 a.insert(3)
 a.insert(6)
 a.insert(7)
-# a.insert(5)
-a.remove(3)
+a.insert(8)
+# a.remove(3)
 
-# a= Dictionary()
+a= Dictionary()
 
-# a.insert(3,2)
-# a.insert(3,1)
+a.insert(3,2)
+a.insert(5,1)
+a.insert(122,2)
 # a[3]=4
-# a[1]=2
+a[12]=2
 
 
 for i in a:
     print(i)
 
-# print(a[1])
+print(a.select(1))
+print(a.find(1))
