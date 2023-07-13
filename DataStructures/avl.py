@@ -405,8 +405,8 @@ class Dictionary:
     def __init__(self, l: Iterable[Tuple[int | float | Value, any]] = []):
         self.__avl = Avl()
 
-        for i in l:
-            self.insert(i)
+        for k, v in l:
+            self.insert(k, v)
 
     def __iter__(self) -> Iterable[int | float | Value]:
         return map(lambda node: (node.key, node.value), self.__avl.in_orden())
