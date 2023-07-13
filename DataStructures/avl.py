@@ -45,11 +45,11 @@ class Avl:
         self.__valance__root()
 
     def remove(self, k: int | float | Value):
-        if self.__root.key == k and self.__root.size == 1:
-            self.__root = None
-            return
+        if self.__root is not None and self.__root.key == k:
+            self.__root = Avl.__remove_node(self.__root)
+        else:
+            Avl.__remove(self.__root, k)
 
-        Avl.__remove(self.__root, k)
         self.__valance__root()
 
     def __insert(node: Node, k: int | float | Value, v=None):
@@ -76,37 +76,47 @@ class Avl:
         if node is None:
             return
 
-        if node.key == k:
-            if node.left is None and node.right is None:
-                return
+        find = False
 
-            hl = 0 if node.left is None else node.left.h
-            hr = 0 if node.right is None else node.right.h
+        if node.left is not None and node.left.key == k:
+            node.left = Avl.__remove_node(node.left)
+            find = True
 
-            if hl < hr:
-                node.key, node.value = node.right.key, node.right.value
-                node.right.key = k
-                Avl.__remove(node.right, k)
-            else:
-                node.key, node.value = node.left.key, node.left.value
-                node.left.key = k
-                Avl.__remove(node.left, k)
-        else:
+        if node.right is not None and node.right.key == k:
+            node.right = Avl.__remove_node(node.right)
+            find = True
+
+        if not find:
             if node.key < k:
                 Avl.__remove(node.left, k)
             else:
                 Avl.__remove(node.right, k)
 
-        if node.left is not None and node.left.key == k:
-            node.left = None
-
-        if node.right is not None and node.right.key == k:
-            node.right = None
-
         Avl.__act_h(node)
         Avl.__act_size(node)
 
         Avl.__valance(node)
+
+    def __remove_node(node: Node) -> Node:
+        if node.left is None and node.right is None:
+            return None
+
+        if node.left is None:
+
+            return node.right
+
+        if node.right is None:
+            return node.left
+
+        k = node.key
+        aux = Avl.__select(node.right, 0)
+
+        node.key, node.value = aux.key, aux.value
+        aux.key = k
+
+        Avl.__remove(node, k)
+
+        return node
 
     def __pre_orden(node: Node | None) -> Iterable[Node]:
         if node is None:
