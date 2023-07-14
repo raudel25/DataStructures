@@ -71,6 +71,9 @@ class SegmentTree:
     def set(self, index: int, value: int | float | Value):
         return self._set(1, 0, len(self._values) - 1, index, value)
 
+    def get(self, index: int):
+        return self._values[index]
+
     def query(self, l: int, r: int):
         return self._query(1, 0, len(self._values) - 1, l, r)
 
@@ -140,6 +143,9 @@ class SegmentTreeLazy(SegmentTree):
 
     def set_rank(self, l: int, r: int, value: int | float | Value):
         return self._set_rank(1, 0, len(self._values) - 1, l, r, value)
+
+    def get(self, index: int):
+        return self._get(1, 0, len(self._values) - 1, index)
 
     def _update_lazy(self, p: int, l: int, r: int):
         if (l == r):
@@ -229,3 +235,16 @@ class SegmentTreeLazy(SegmentTree):
 
         self._p_values[p] = self._prop.prop(
             self._p_values[left], self._p_values[right])
+
+    def _get(self, p: int, l: int, r: int, index: int):
+        if self._lazy[p]:
+            self._update_lazy(p, l, r)
+            self._propagate_lazy(p, l, r)
+
+        if l == r:
+            return self._values[index]
+
+        if index <= (l + r) / 2:
+            return self._get(self._left(p), l, (l + r) // 2, index)
+
+        return self._get(self._right(p), (l + r) // 2 + 1, r, index)
